@@ -15,7 +15,7 @@ jobs:
     steps:
       - name: Prepare Environment
         run: |
-          echo WEB_IMAGE=docker.pkg.github.com/$(echo ${{ github.repository }} | tr '[:upper:]' '[:lower:]')/web >> $GITHUB_ENV
+          echo WEB_IMAGE=docker.pkg.github.com/$(echo ${{ github.repository }} | tr '[:upper:]' '[:lower:]') >> $GITHUB_ENV
       - name: Checkout master
         uses: actions/checkout@v3
       - name: Authenticate with GH packages

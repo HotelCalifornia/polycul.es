@@ -6,7 +6,7 @@ RUN apt-get update && apt-get install -y \
     build-essential \
     libffi-dev
 
-RUN pip3 install uwsgi Flask-Migrate
+RUN pip3 install uwsgi
 
 WORKDIR /polycul.es
 
