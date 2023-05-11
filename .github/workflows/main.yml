@@ -1,0 +1,26 @@
+name: CI/CD
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    name: Build Docker Image
+    runs-on: ubuntu-latest
+    environment: ci-cd
+    permissions:
+      packages: write
+    steps:
+      - name: Prepare Environment
+        run: |
+          echo WEB_IMAGE=docker.pkg.github.com/$(echo ${{ github.repository }} | tr '[:upper:]' '[:lower:]')/web >> $GITHUB_ENV
+      - name: Checkout master
+        uses: actions/checkout@v3
+      - name: Authenticate with GH packages
+        run: echo ${{ secrets.GITHUB_TOKEN }} | docker login -u ${GITHUB_ACTOR} --password-stdin docker.pkg.github.com
+      - name: Build
+        run: docker build -t ${{ env.WEB_IMAGE }}:latest .
+      - name: Push
+        run: docker push ${{ env.WEB_IMAGE }}:latest

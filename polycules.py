@@ -39,12 +39,14 @@ def migrate():
     )
     with closing(connect_db()) as db:
         try:
+            print('Attempting to run migrations...')
             current_migration = db.execute(
                 """
                 select * from migrations
             """
             ).fetchall()[0][0]
         except sqlite3.OperationalError:
+            print('\tNo migrations table found!')
             # If there was no migrations table, the DB does not exist yet.
             current_migration = -1
         for filename in sorted(os.listdir(migrations_dir)):
@@ -52,17 +54,19 @@ def migrate():
                 continue
             migration_number = int(filename[:3])
             if migration_number <= current_migration:
-                print("migration {} already applied".format(migration_number))
+                print(f'\tMigration {migration_number:03} already applied')
                 continue
-            with open(os.path.join(migrations_dir, filename), "rb") as f:
+            with open(os.path.join(migrations_dir, filename), "r") as f:
+                print(f'\tApplying migration {migration_number:03}...')
                 try:
                     db.cursor().executescript(f.read())
                 except Exception as e:
-                    print("Got {} - maybe already applied?".format(e))
+                    print(f'\tGot {e} - maybe already applied?')
                 finally:
                     pass
             if filename[:3] == "003":
                 hashify.migrate(db)
+        print('Finished running migrations')
 
 
 def generate_csrf_token():
@@ -308,6 +312,9 @@ def export_png(polycule_id):
     return Response(png, mimetype="image/png")
 
 
+# run migrations whether this is a dev or prod environment
+migrate()
+
+# though if it is a (non-docker) dev environment, we also want to run the simple webserver here
 if __name__ == "__main__":
-    migrate()
-    app.run()
+    app.run(host='0.0.0.0')
