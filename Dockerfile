@@ -16,6 +16,12 @@ RUN pip3 install -r requirements.txt
 COPY entrypoint.sh entrypoint.sh
 RUN chmod +x ./entrypoint.sh
 
-COPY . .
+COPY ./migrations/*.sql ./migrations/
+COPY ./migrations/*.py ./migrations/
+COPY ./static/*.js ./static/
+COPY ./static/*.css ./static/
+COPY ./templates/*.jinja2 ./templates/
+COPY ./*.py ./
+
 
 ENTRYPOINT [ "/bin/sh", "/polycul.es/entrypoint.sh" ]
